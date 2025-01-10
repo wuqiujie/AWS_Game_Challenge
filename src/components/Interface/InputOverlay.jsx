@@ -7,7 +7,7 @@ export default function InputOverlay({ isFloating, text, setText, handleSubmit }
 
 I hope this letter finds you well. As your ___[relationship]___, I wanted to take a moment to wish you a wonderful ___[holiday]___. 
 
-___[additional info]___
+___[additional_info]___
 
 With ___[tone]___ regards,
 ___[sender]___`;
@@ -27,7 +27,9 @@ ___[sender]___`;
           position: "absolute",
           top: "30%",
           left: "50%",
-          transform: "translate(-50%, -50%)",
+          transform: `translate(-50%, -50%) ${isFloating ? 'scale(1)' : 'scale(0)'}`,
+          opacity: isFloating ? 1 : 0,
+          transition: 'all 0.3s ease-in-out',
           width: "400px",
           height: "auto",
           backgroundColor: "rgba(255, 255, 255, 0.9)",
@@ -47,7 +49,7 @@ ___[sender]___`;
               return <span key={index}>{part}</span>;
             } else {
               // Special handling for additional info
-              if (part === 'additional info') {
+              if (part === 'additional_info') {
                 return (
                   <textarea
                     key={index}
