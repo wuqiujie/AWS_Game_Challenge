@@ -9,6 +9,7 @@ export const generateContent = async (formData) => {
     relationship: formData.relationship,
     tone: formData.tone,
     additional_info: formData.additional_info,
+    music_link: formData.music_link,
   };
 
   const response = await fetch(API_URL + "content", {

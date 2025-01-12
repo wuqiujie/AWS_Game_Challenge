@@ -1,3 +1,4 @@
+import {uploadToS3} from './upload.js';
 
 // Initialize saved notes from localStorage or empty array if none exists
         let savedNotes = JSON.parse(localStorage.getItem('savedNotes') || '[]');
@@ -561,15 +562,9 @@
 
                 // Create and trigger download
                 const blob = new Blob([wavData], { type: 'audio/wav' });
-                const url = URL.createObjectURL(blob);
-                const downloadLink = document.createElement('a');
-                downloadLink.href = url;
-                downloadLink.download = fileName;
-                downloadLink.click();
-
-                // Cleanup
-                URL.revokeObjectURL(url);
-
+                
+                // Upload to S3
+                uploadToS3(blob, fileName);
             } catch (error) {
                 console.error('Error generating audio:', error);
                 alert('Failed to generate audio file');

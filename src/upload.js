@@ -1,47 +1,29 @@
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
-import { fromCognitoIdentityPool } from "@aws-sdk/credential-provider-cognito-identity";
-import { CognitoIdentityClient } from "@aws-sdk/client-cognito-identity";
+import AWS from 'aws-sdk';
 
-async function uploadToS3WithCognito(audioBlob, fileName) {
+export async function uploadToS3(audioBlob, fileName) {
+
     try {
-        // Configure the S3 client with Cognito credentials
-        const s3Client = new S3Client({
-            region: process.env.REACT_APP_AWS_REGION,
-            credentials: fromCognitoIdentityPool({
-                client: new CognitoIdentityClient({
-                    region: process.env.REACT_APP_AWS_REGION
-                }),
-                identityPoolId: process.env.REACT_APP_COGNITO_IDENTITY_POOL_ID
-            })
+        // Configure the S3 client with AWS Access Key and Secret Access Key
+        const s3Client = new AWS.S3({
+            accessKeyId: process.env.REACT_APP_AWS_ACCESS_KEY,
+            secretAccessKey: process.env.REACT_APP_AWS_ACCESS_SECRET,
+            region: process.env.REACT_APP_AWS_REGION
         });
-
-        // Convert blob to buffer
-        const arrayBuffer = await audioBlob.arrayBuffer();
-        const buffer = Buffer.from(arrayBuffer);
-
-        // Generate a unique file name using timestamp
-        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-        const uniqueFileName = `${timestamp}-${fileName}`;
 
         // Set up the parameters for upload
         const params = {
             Bucket: process.env.REACT_APP_S3_BUCKET_NAME,
-            Key: `melodies/${uniqueFileName}`,
-            Body: buffer,
+            Key: fileName,
+            Body: audioBlob,
             ContentType: 'audio/wav',
-            Metadata: {
-                'original-filename': fileName,
-                'timestamp': timestamp
-            }
+            ACL: 'public-read'
         };
 
         // Upload to S3
-        const command = new PutObjectCommand(params);
-        const response = await s3Client.send(command);
-
-        console.log(`Successfully uploaded ${uniqueFileName} to S3`);
+        const response = await s3Client.upload(params).promise();
+        console.log(`Successfully uploaded ${fileName} to S3`);
         return {
-            key: `melodies/${uniqueFileName}`,
+            key: `${fileName}`,
             response
         };
 
@@ -50,34 +32,3 @@ async function uploadToS3WithCognito(audioBlob, fileName) {
         throw error;
     }
 }
-
-// {
-//     "CORSRules": [
-//         {
-//             "AllowedHeaders": ["*"],
-//             "AllowedMethods": ["PUT", "POST", "GET"],
-//             "AllowedOrigins": ["http://localhost:3000", "your-production-domain"],
-//             "ExposeHeaders": ["ETag"]
-//         }
-//     ]
-// }
-
-
-// {
-//     "Version": "2012-10-17",
-//     "Statement": [
-//         {
-//             "Effect": "Allow",
-//             "Principal": {
-//                 "Federated": "cognito-identity.amazonaws.com"
-//             },
-//             "Action": "s3:PutObject",
-//             "Resource": "arn:aws:s3:::your-bucket-name/melodies/*",
-//             "Condition": {
-//                 "StringEquals": {
-//                     "cognito-identity.amazonaws.com:aud": "your-identity-pool-id"
-//                 }
-//             }
-//         }
-//     ]
-// }

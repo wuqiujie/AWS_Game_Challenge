@@ -34,7 +34,7 @@ Holiday: {body['holiday']}
 Relationship: {body['relationship']}
 Tone: {body['tone']}
 Additional information: {body['additional_info']}
-MusicLink: https://aws-game-music-bucket.s3.us-east-1.amazonaws.com/mistletoe.mp3
+MusicLink: {body['music_link']}
 """
     # TODO: Update the music link
 
