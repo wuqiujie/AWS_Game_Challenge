@@ -25,8 +25,7 @@ function App() {
     holiday: "",
     additional_info: "",
     tone: "",
-    sender: "",
-    music_link: ""
+    sender: ""
   });
 
   const startGame = () => {
@@ -70,8 +69,6 @@ function App() {
   };
 
   const handleFilterConfirmed = () => {
-    // Download the music file
-    handleDownload();
     setGameState("sendEmail");
   };
 
@@ -112,31 +109,9 @@ function App() {
     alert("Your card has been sent successfully!"); // You can replace this with a more elegant notification
   };
 
-  const generateRandomFileName = () => {
-    // Generate a unique file name using timestamp
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-
-    const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    const numbers = '0123456789';
-    let fileName = '';
-    for (let i = 0; i < 10; i++) {
-      if (i % 2 === 0) {
-        fileName += letters.charAt(Math.floor(Math.random() * letters.length));
-      } else {
-        fileName += numbers.charAt(Math.floor(Math.random() * numbers.length));
-      }
-    }
-    
-    const uniqueFileName = `${fileName}-${timestamp}`;
-    return uniqueFileName;
-  };
-
   const handleDownload = async () => {
       try {
-          const fileName = generateRandomFileName();
-          await downloadSequence(fileName);
-          const musicUrl = `https://aws-game-music-bucket.s3.us-east-1.amazonaws.com/${fileName}`;
-          setFormData({ ...formData, music_link: musicUrl});
+          await downloadSequence();
       } catch (error) {
           console.error('Download failed:', error);
       }
